@@ -3,13 +3,15 @@ import java.util.HashMap;
 
 class Milestone1 {
 
-  public HashMap<String, Integer> variableList = new HashMap<>();
+  public HashMap<String, Integer> variableList = new HashMap<String, Integer>();
+
+  public HashMap<String, Integer> parameterList = new HashMap<String, Integer>();
 
   // static is me being lazy, fix later
-  public HashMap<String,Integer> ParseFunctionHeader(String header) {
+  public void ParseFunctionHeader(String header) {
     String[] splitString = header.split(" "); 
 
-    HashMap<String, Integer> vars = new HashMap<>();
+    //HashMap<String, Integer> vars = new HashMap<>();
 
 
     // start at 1 to avoid catching start of line int - ew tho
@@ -20,11 +22,11 @@ class Milestone1 {
         System.out.printf("%s ", splitString[i+1]);
         
         // we should have certainty that splitString[i+1] exists but maybe check anyway?
-        vars.put(splitString[i + 1], 0); // val will change in milestone 2
+        parameterList.put(splitString[i + 1], 0); // val will change in milestone 2
       }
     }
     System.out.println();
-    return vars; 
+    //return vars; 
   }
 
   public void parseLine(String line) {
@@ -35,7 +37,7 @@ class Milestone1 {
     }
 
     variableList.put(splitString[1], 0);
-    System.out.print(" \n" + splitString[1]+ " ");
+    System.out.print( splitString[1]+ " ");
     
     for (int i = 2 ; i < splitString.length; i++) {
         if (splitString[i-1].equals(",") )
@@ -44,7 +46,6 @@ class Milestone1 {
           System.out.print(splitString[i]+ " "); // for milestone 1 only
         }
     }
- 
   }
 
   public static void main(String[] args) {
