@@ -32,14 +32,21 @@ class Milestone1 {
   public void parseLine(String line) {
 
     String[] splitString = line.split(" ");
-    if (!splitString[0].equals("int")) {
+
+    //for (int i = 0 ; i < splitString.length; i++) {
+    //  System.out.println(splitString[i]);
+    //}
+
+    if (splitString.length < 5 ) return;
+    //System.out.println(splitString[2]);
+    if (!splitString[2].equals("int")) {
       return;
     }
 
-    variableList.put(splitString[1], 0);
-    System.out.print( splitString[1]+ " ");
+    variableList.put(splitString[3], 0);
+    System.out.print(splitString[3]+ " ");
     
-    for (int i = 2 ; i < splitString.length; i++) {
+    for (int i = 3 ; i < splitString.length; i++) {
         if (splitString[i-1].equals(",") )
         {
           variableList.put(splitString[i], 0);
