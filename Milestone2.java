@@ -36,7 +36,7 @@ public class Milestone2 {
             return ret;
     }
     
-    public void generateTable(String [] codeText)
+    public void CreateSymbolTable(String [] codeText)
     {
         //String[] splitString = codeText.split("\n");
         
@@ -76,6 +76,6 @@ public class Milestone2 {
 
         Milestone2 m2 = new Milestone2();
         String test0[] = m2.readFile("sample.code");
-        m2.generateTable(test0);
+        m2.CreateSymbolTable(test0);
     }
 }
