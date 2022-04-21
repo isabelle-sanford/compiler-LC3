@@ -72,10 +72,22 @@ public class Milestone2 {
             offset--;
         }
     }
+
+    static String[] myDefaults = {"sample.code"};
     public static void main(String[] args) {
 
+        String filename;
+        if (args.length != 0)
+        {
+            filename = args[0];
+        }
+        else
+        {
+            filename = myDefaults[0];
+        }
+
         Milestone2 m2 = new Milestone2();
-        String test0[] = m2.readFile("sample.code");
+        String test0[] = m2.readFile(filenames;
         m2.CreateSymbolTable(test0);
     }
 }
