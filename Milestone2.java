@@ -8,6 +8,45 @@ import java.util.*;
 
 public class Milestone2 {
 
+    public boolean checkLegal (String codeLine){
+
+        String[] splitLine = codeLine.split(" ");
+        if (splitString.length < 4 ) return true;
+
+        if (splitLine[3].equals("int") ) //it is declartion statement
+        {
+            if (!splitLine[length - 1].equals(";")) // line doesnt contain semi-colon at the end
+            {
+                return false;
+            }
+            for (int i = 5; i < splitLine.length ; i++){ //check variables
+                if (splitLine[i-2].equals("int") || splitLine[i-2].equals(",")  )//then index is variable
+                {
+                    if (!splitLine[i+2].equals("=") || !splitLine[i+2].equals(";") || !splitLine[i+2].equals(",") )//wrong declaration
+                        return false;
+
+                        if (!splitLine[i+2].equals("=")){ //ensure proper assignment that ends with ; or ,
+                            //for (int j = i+2; j < codeLine.length ; i++)
+                            //{
+                                
+                            //}
+                        }
+                }
+            }
+            return true;
+        }
+        else if (codeLine[3].equals("return") ) //is return statement
+        {
+
+        }
+        else //is assignment statement
+        {
+
+        }
+
+    
+    }
+
     public String[] readFile(String filename)
     {
         ArrayList<String> rslt = new ArrayList<>();
