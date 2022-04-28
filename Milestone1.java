@@ -12,18 +12,20 @@ class Milestone1 {
     String[] splitString = header.split(" "); 
 
     //HashMap<String, Integer> vars = new HashMap<>();
-
+    int offset = 4; 
 
     // start at 1 to avoid catching start of line int - ew tho
     for (int i = 1; i < splitString.length; i++) {
       //System.out.println(splitString[i]);
       if (splitString[i].equals("int")) { 
         // For milestone 1:
-        System.out.printf("%s ", splitString[i+1]);
+        //System.out.printf("%s ", splitString[i+1]);
         
         // we should have certainty that splitString[i+1] exists but maybe check anyway?
-        parameterList.put(splitString[i + 1], 0); // val will change in milestone 2
+        parameterList.put(splitString[i + 1], offset); // val will change in milestone 2
+        offset++;
       }
+
     }
     System.out.println();
     //return vars; 
@@ -33,24 +35,25 @@ class Milestone1 {
 
     String[] splitString = line.split(" ");
 
-    //for (int i = 0 ; i < splitString.length; i++) {
-    //  System.out.println(splitString[i]);
-    //}
-
-    if (splitString.length < 5 ) return;
-    //System.out.println(splitString[2]);
-    if (!splitString[2].equals("int")) {
-      return;
-    }
-
-    variableList.put(splitString[3], 0);
-    System.out.print(splitString[3]+ " ");
+    int idx = 0; 
+    int offset = 0 - variableList.size();
     
-    for (int i = 3 ; i < splitString.length; i++) {
+    for (int i = 0; i < splitString.length ; i++)
+    {
+      //System.out.println(splitString[i]);
+      if (splitString[i].equals("int"))
+        idx =  i+1; 
+    }
+    if (idx == 0) return;
+
+    variableList.put(splitString[idx], offset);
+    
+    for (int i = idx; i < splitString.length; i++) {
         if (splitString[i-1].equals(",") )
         {
-          variableList.put(splitString[i], 0);
-          System.out.print(splitString[i]+ " "); // for milestone 1 only
+          variableList.put(splitString[i], offset);
+          offset--;
+          //System.out.print(splitString[i]+ " "); // for milestone 1 only
         }
     }
   }

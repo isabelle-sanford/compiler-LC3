@@ -1,0 +1,9 @@
+int fun ( int x , int y , int z ) {
+  int a = x + y, b = z + x ; 
+  int c = a + 5 ;
+  c = c + b ;
+  int d = 1 ;
+  int e = d ;
+  c = d ;
+  return c + 26 ;
+}
