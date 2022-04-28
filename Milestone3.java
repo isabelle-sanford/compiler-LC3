@@ -203,19 +203,24 @@ public class Milestone3 {
      * @param line
      */
 
-    public void generateIntializing (String line)
+    private void IntializingUtill(String line, String [] splitString, int i_start, int i_end)
     {
-        String [] splitString = line.split(" ");
-        //for case 3
-        //how many variables are intialized = no. of ',' + 1
-        //identify indexs of varibels intialized and place indexes in array 
-        //loop for number of variables intialized 
+        boolean flag = true; 
+        //System.out.println(splitString.length +" "+i_start +" "+i_end);
+        for (int i = i_start; i < i_end ; i++){
+            if (splitString[i].equals("=")){
+                //System.out.println(splitString[i]);
+                flag = false; 
+            }
+        }
         
+        if (flag) return;
+
         //case 2 int x = a + b or int x = a + 5;
         int idx = 0;
-        for (int i = 0; i < splitString.length; i++)
+        for (int i = i_start; i <=i_end; i++)
         {
-            if (splitString[i].equals("int"))
+            if (splitString[i].equals("int") || splitString[i].equals(",") )
                 idx = i; 
             if (splitString[i].equals("+")){ //belongs to case 2
                 int start = idx + 3; 
@@ -237,7 +242,7 @@ public class Milestone3 {
                 int offset = m2.SymbolTable.get(storeValue);
                 System.out.println("LDR R0, FP, "+offset+"; read "+storeValue);
                 int offset2 = m2.SymbolTable.get(variable);
-                System.out.println("STR R0, FP, "+offset2+"; write R"+variable);
+                System.out.println("STR R0, FP, "+offset2+"; write "+variable);
                 return;
             }
             else //if it is a literal
@@ -258,11 +263,44 @@ public class Milestone3 {
                     }
                 }
                 int offset2 = m2.SymbolTable.get(variable);
-                //System.out.println(variable);
-                //return;
                 System.out.println("STR R0, FP, "+offset2+"; write "+variable);
                 return;
             }
+
+    }
+    public void generateIntializing (String line)
+    {
+        //for case 3
+        //how many variables are intialized = no. of ',' + 1
+        //identify indexs of varibels intialized and place indexes in array 
+        //loop for number of variables intialized
+
+        String [] splitString = line.split(" ");
+        int var_num = 1; 
+        for (int i = 0; i < splitString.length; i++) {
+            if (splitString[i] == ",")  
+                var_num++; 
+        }
+          
+        int start = 0; int end = 0;
+        for (int i=0 ; i < splitString.length ; i++){
+            if (var_num <= 0) break;
+            if (splitString[i].equals("int") || splitString[i].equals(",") )
+            {
+                start = i;
+                for (int j=start+1; j<splitString.length ; j++){
+                    if (splitString[j].equals(";") || splitString[i].equals(",")) {
+                        end = j;
+
+                        IntializingUtill(line, splitString, start, end);
+                        var_num--;
+                        i = end;
+                    }
+                }
+            }
+        }
+
+                
     }
     
     public void generateReturn (String line)
@@ -322,6 +360,8 @@ public class Milestone3 {
         for (int i= 0 ; i<splitString.length ; i++){ 
             if (splitString[i].equals("=")){
                 idx = i; 
+            }
+            if (splitString[i].equals("+")){
                 String varibale = splitString[idx-1];
                 int start = idx + 1; 
                 int end = splitString.length-1; 
@@ -330,6 +370,40 @@ public class Milestone3 {
                 System.out.println("STR R2, FP, "+offset+"; write "+varibale);
                 return; 
             }
+        }
+
+        String storeValue = splitString[idx+1];
+        String variable = splitString[idx-1];
+        //System.out.println(variable);
+
+        if (m2.SymbolTable.containsKey(storeValue) ) //if storeValue is a variable
+        {   
+            int offset = m2.SymbolTable.get(storeValue);
+            System.out.println("LDR R0, FP, "+offset+"; read "+storeValue);
+            int offset2 = m2.SymbolTable.get(variable);
+            System.out.println("STR R0, FP, "+offset2+"; write "+variable);
+            return;
+        }
+        else //if it is a literal
+        {
+            System.out.println("AND R0, R0, 0; clear R0");
+            int number = Integer.parseInt(storeValue);
+            while ( number > 0 )
+            {
+                if (number <= 15 )
+                {
+                    System.out.println("ADD R0, R0, " + number+"; add "+number+" to R0");
+                    break;
+                }
+                else
+                {
+                    number = number - 15; 
+                    System.out.println("ADD, R0, R0, 15; add 15 to R0");
+                }
+            }
+            int offset2 = m2.SymbolTable.get(variable);
+            System.out.println("STR R0, FP, "+offset2+"; write "+variable);
+            return;
         }
     }
     
