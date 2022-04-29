@@ -17,10 +17,6 @@ public class Milestone3 {
     {
         codeLines = readFile(filename);
         m2.CreateSymbolTable(codeLines, m1);
-        //System.out.println(m2.SymbolTable+"\n");
-        //constructer fills m1 hastables
-        //creates symbol table in m2
-        //stores code lines
     }
 
     /**
@@ -37,10 +33,8 @@ public class Milestone3 {
             while (br.ready()) {
                 br.read();
                 String l = br.readLine();
-                //System.out.println(l);
                 rslt.add(l);
             }
-            //System.out.println("Lines all read ");
         } catch (FileNotFoundException fnf) {
             System.err.println("Could not open the file" + fnf);
         } catch (IOException ioe) {
@@ -53,7 +47,6 @@ public class Milestone3 {
             for (int i=0; i<rslt.size(); i++) // 
             {
                 ret[i]=rslt.get(i);
-                //System.out.println(ret[i]);
             }
             return ret;
     }
@@ -81,32 +74,49 @@ public class Milestone3 {
                 if (splitString[j].equals("="))
                     containsEq = true;
             }
-            
-            //case 1 Simple Declarating
-            //contains int but no =
-            //do nothing
 
             if (containsInt && containsEq)  {
-                //case 3 Initialization (declaring and assignment)
-                //contains int and = 
                 System.out.println("\n;;"+codeLines[i]);
                 generateIntializing(codeLines[i]);
             }
             else if (containsRet)
             {
-                //case 4 return statement 
-                //contains return 
                 System.out.println("\n;;"+codeLines[i]);
                 generateReturn(codeLines[i]);
             } 
             else if (containsEq)
             {
-                // case 2 Assignment (no decalration)
-                //just contains = 
                 System.out.println("\n;;"+codeLines[i]);
                 generateAssignment(codeLines[i]);
             } 
         }
+    }
+
+    public void generateSingle(String storeValue){
+        if (m2.SymbolTable.containsKey(storeValue) ) //if storeValue is a variable
+        {   
+            int offset = m2.SymbolTable.get(storeValue);
+            System.out.println("LDR R0, FP, "+offset+"; read "+storeValue);
+        }
+        else //if it is a literal
+        {
+            System.out.println("AND R0, R0, 0; clear R0");
+            int number = Integer.parseInt(storeValue);
+            while ( number > 0 )
+            {
+                if (number <= 15 )
+                {
+                    System.out.println("ADD R0, R0, " + number+"; add "+number+" to R0");
+                    break;
+                }
+                else
+                {
+                    number = number - 15; 
+                    System.out.println("ADD, R0, R0, 15; add 15 to R0");
+                }
+            }
+        }
+
     }
 
     /**
@@ -128,40 +138,45 @@ public class Milestone3 {
         int operand;
 
         for (int i = start; i < end; i++){
-            if (splitLine[i] == "+")
+            if (splitLine[i].equals("+") ) 
                 operators++;
         }
         operand = operators + 1;
 
-        for (int i = start ; i<end && operand > 0 ; ){
+        if (operators > 0 ) {
+            for (int i = start ; i<end && operand > 0 ; ){
 
-            //first operand
-            
-            if (m2.SymbolTable.containsKey(splitLine[i])) //if operand is a variable
-            {
-                int offset = m2.SymbolTable.get(splitLine[i]);
-                System.out.println("LDR R0, FP, "+offset+"; read "+splitLine[i]);
-            }
-            else //it is a number
-            {
-                System.out.println("AND R0, R0, 0; clear R0");
-                int number = Integer.parseInt(splitLine[i]);
-                while ( number > 0 )
+                //first operand  
+                if (m2.SymbolTable.containsKey(splitLine[i])) //if operand is a variable
                 {
-                    if (number <= 15 )
+                    int offset = m2.SymbolTable.get(splitLine[i]);
+                    System.out.println("LDR R0, FP, "+offset+"; read "+splitLine[i]);
+                }
+                else //it is a number
+                {
+                    System.out.println("AND R0, R0, 0; clear R0");
+                    int number = Integer.parseInt(splitLine[i]);
+                    while ( number > 0 )
                     {
-                        System.out.println("ADD, R0, R0, " + number+"; add "+number+" to R0");
-                        break;
-                    }
-                    else
-                    {
-                        number = number - 15; 
-                        System.out.println("ADD, R0, R0, 15; add 15 to R0");
+                        if (number <= 15 )
+                        {
+                            System.out.println("ADD, R0, R0, " + number+"; add "+number+" to R0");
+                            break;
+                        }
+                        else
+                        {
+                            number = number - 15; 
+                            System.out.println("ADD, R0, R0, 15; add 15 to R0");
+                        }
                     }
                 }
-            }
+            
 
             operand--; 
+            if(operand <= 0){ 
+                System.out.println("ADD R2, R2, R1 ; put sum in R2");
+                break;
+            }
             i=i+2;
 
             //second operand
@@ -193,6 +208,7 @@ public class Milestone3 {
 
             operand--; 
             i= i+2;
+            }
 
         }
         return;
@@ -206,25 +222,24 @@ public class Milestone3 {
     private void IntializingUtill(String line, String [] splitString, int i_start, int i_end)
     {
         boolean flag = true; 
-        //System.out.println(splitString.length +" "+i_start +" "+i_end);
         for (int i = i_start; i < i_end ; i++){
             if (splitString[i].equals("=")){
-                //System.out.println(splitString[i]);
                 flag = false; 
             }
         }
         
         if (flag) return;
 
-        //case 2 int x = a + b or int x = a + 5;
         int idx = 0;
         for (int i = i_start; i <=i_end; i++)
         {
             if (splitString[i].equals("int") || splitString[i].equals(",") )
                 idx = i; 
+            if (idx == i_end) break;
             if (splitString[i].equals("+")){ //belongs to case 2
                 int start = idx + 3; 
-                int end = splitString.length-1; 
+                int end = i_end; 
+                //System.out.println("1");
                 generateEquation(line, start, end);
                 int offset = m2.SymbolTable.get(splitString[idx+1]);
                 System.out.println("STR R2, FP, "+offset+"; write "+splitString[idx+1]);
@@ -232,69 +247,36 @@ public class Milestone3 {
             }
         }
         
-         //case 1 int x = 1 or int x = a;
-            String storeValue = splitString[idx+3];
-            String variable = splitString[idx+1];
-            //System.out.println(variable);
-
-            if (m2.SymbolTable.containsKey(storeValue) ) //if storeValue is a variable
-            {   
-                int offset = m2.SymbolTable.get(storeValue);
-                System.out.println("LDR R0, FP, "+offset+"; read "+storeValue);
-                int offset2 = m2.SymbolTable.get(variable);
-                System.out.println("STR R0, FP, "+offset2+"; write "+variable);
-                return;
-            }
-            else //if it is a literal
-            {
-                System.out.println("AND R0, R0, 0; clear R0");
-                int number = Integer.parseInt(storeValue);
-                while ( number > 0 )
-                {
-                    if (number <= 15 )
-                    {
-                        System.out.println("ADD R0, R0, " + number+"; add "+number+" to R0");
-                        break;
-                    }
-                    else
-                    {
-                        number = number - 15; 
-                        System.out.println("ADD, R0, R0, 15; add 15 to R0");
-                    }
-                }
-                int offset2 = m2.SymbolTable.get(variable);
-                System.out.println("STR R0, FP, "+offset2+"; write "+variable);
-                return;
-            }
+        //System.out.println("2 "+splitString[i_start+3]);
+        String storeValue = splitString[i_start+3];
+        String variable = splitString[i_start+1];
+        generateSingle(storeValue);
+        int offset2 = m2.SymbolTable.get(variable);
+        System.out.println("STR R0, FP, "+offset2+"; write "+variable);
+        return;
 
     }
     public void generateIntializing (String line)
     {
-        //for case 3
-        //how many variables are intialized = no. of ',' + 1
-        //identify indexs of varibels intialized and place indexes in array 
-        //loop for number of variables intialized
-
         String [] splitString = line.split(" ");
         int var_num = 1; 
         for (int i = 0; i < splitString.length; i++) {
-            if (splitString[i] == ",")  
+            if (splitString[i].equals(","))  
                 var_num++; 
         }
           
-        int start = 0; int end = 0;
-        for (int i=0 ; i < splitString.length ; i++){
-            if (var_num <= 0) break;
+        for (int i=0 ; i < splitString.length && var_num > 0 ; i++){
+            int start = 0, end = 0;
             if (splitString[i].equals("int") || splitString[i].equals(",") )
             {
                 start = i;
                 for (int j=start+1; j<splitString.length ; j++){
-                    if (splitString[j].equals(";") || splitString[i].equals(",")) {
+                    if (splitString[j].equals(";") || splitString[j].equals(",")) {
                         end = j;
-
+                        //System.out.println("start:"+start+" end:"+end);
                         IntializingUtill(line, splitString, start, end);
                         var_num--;
-                        i = end;
+                        i = i+2;
                     }
                 }
             }
@@ -322,34 +304,10 @@ public class Milestone3 {
             }
         }
 
-        //not an equation
-        //in the case it looks like: return 5 
         String retValue = splitString[idx+1]; 
-        if (m2.SymbolTable.containsKey(retValue) ) //if retValue is a variable
-        {
-            int offset = m2.SymbolTable.get(retValue);
-            System.out.println("LDR R0, FP, "+offset+"; read "+retValue);
-            System.out.println("STR R0, FP, 3; write RV");
-        }
-        else //if it is a literal
-        {
-            System.out.println("AND R0, R0, 0; clear R0");
-            int number = Integer.parseInt(retValue);
-            while ( number > 0 )
-            {
-                if (number <= 15 )
-                {
-                    System.out.println("ADD, R0, R0, " + number+"; add "+number+" to R0");
-                    break;
-                }
-                else
-                {
-                    number = number - 15; 
-                    System.out.println("ADD, R0, R0, 15; add 15 to R0");
-                }
-            }
-            System.out.println("STR R0, FP, 3; write RV");
-        }
+        generateSingle(retValue);
+        System.out.println("STR R0, FP, 3; write RV");
+
     }
 
     public void generateAssignment (String line)
@@ -374,37 +332,10 @@ public class Milestone3 {
 
         String storeValue = splitString[idx+1];
         String variable = splitString[idx-1];
-        //System.out.println(variable);
-
-        if (m2.SymbolTable.containsKey(storeValue) ) //if storeValue is a variable
-        {   
-            int offset = m2.SymbolTable.get(storeValue);
-            System.out.println("LDR R0, FP, "+offset+"; read "+storeValue);
-            int offset2 = m2.SymbolTable.get(variable);
-            System.out.println("STR R0, FP, "+offset2+"; write "+variable);
-            return;
-        }
-        else //if it is a literal
-        {
-            System.out.println("AND R0, R0, 0; clear R0");
-            int number = Integer.parseInt(storeValue);
-            while ( number > 0 )
-            {
-                if (number <= 15 )
-                {
-                    System.out.println("ADD R0, R0, " + number+"; add "+number+" to R0");
-                    break;
-                }
-                else
-                {
-                    number = number - 15; 
-                    System.out.println("ADD, R0, R0, 15; add 15 to R0");
-                }
-            }
-            int offset2 = m2.SymbolTable.get(variable);
-            System.out.println("STR R0, FP, "+offset2+"; write "+variable);
-            return;
-        }
+        generateSingle(storeValue);
+        int offset2 = m2.SymbolTable.get(variable);
+        System.out.println("STR R0, FP, "+offset2+"; write "+variable);
+        return;
     }
     
 
